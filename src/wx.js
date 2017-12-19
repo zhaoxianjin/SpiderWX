@@ -1,4 +1,5 @@
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer'),
+    fs = require('fs');
 let { timeout } = require('../tools/tools.js');
 const spider = async(wxName) => {
     puppeteer.launch().then(async browser => {
@@ -45,6 +46,12 @@ const spider = async(wxName) => {
         await page.goto(firstDynamic.href);
         //await timeout(2000);
         await page.pdf({ path: `./data/es6-pdf/${PublicNumber.name}3.pdf` });
+        //取网页源码
+        let getHtml = await page.evaluate(() => {
+            return document.getElementById('img-content').innerHTML;
+        });
+        const showImgJs = '<script>const imgDOM=[...document.querySelectorAll("img[data-src]")];imgDOM.map((v)=>{v.setAttribute("src",v.getAttribute("data-src"));});</script>';
+        fs.writeFileSync('getHtml.html', getHtml + showImgJs);
         await page.close();
         await browser.close();
     });
@@ -56,6 +63,13 @@ const moreSpider = async(wxArr) => {
     });
 };
 
-const wxArr = ['jackmafoundation', '雷军'];
+const wxArr = [
+    'jackmafoundation',
+    // '雷军',
+    // 'adnlb11111111',
+    // 'mayundengshi8899',
+    // 'mxd2tencent',
+    // 'mxd2helper'
+];
 
 moreSpider(wxArr);
